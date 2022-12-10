@@ -5,16 +5,19 @@ const minus = document.getElementById("minus");
 const number = document.querySelector("span");
 
 number.innerText = 0;
+const ADD = "ADD";
+const MINUS = "MINUS";
 
 // reducer
 const countModifier = (count = 0, action) => {
-  if (action.type === 'ADD') {
+ switch (action.type) {
+  case ADD:
     return count + 1;
-  } else if (action.type === 'MINUS') {
+  case MINUS:
     return count - 1;
-  } else {
+  default:
     return count;
-  }
+ }
 }
 
 // store
@@ -26,10 +29,10 @@ const onChange = () => {
 }
 
 const handleAdd =  () => {
-  countStore.dispatch({ type: "ADD"})
+  countStore.dispatch({ type: ADD})
 }
 const handleMinus =  () => {
-  countStore.dispatch({ type: "MINUS"})
+  countStore.dispatch({ type: MINUS})
 }
 
 countStore.subscribe(onChange)
