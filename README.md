@@ -1,70 +1,99 @@
-# Getting Started with Create React App
+# Vanilla Redux
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Redux 를 사용하는 이유
+```javascript
+const add = document.getElmentById("add");
+const minus = document.getElementById("minus");
+const number = document.querySelector("span");
 
-## Available Scripts
+let count = 0;
 
-In the project directory, you can run:
+const updateText = () => {
+    number.innerText = count;
+}
 
-### `yarn start`
+const handleAdd = () => {
+    count += 1;
+    updateText();
+}
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+const handleMinus = ()=> {
+    count -= 1;
+    updateText();
+}
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+add.addEventListener("click", handleAdd);
+minus.addEventListener("click", handleMinus);
+```
 
-### `yarn test`
+이와 같이 카운터 예제가 있을 때, 기존 JavaScript에서는 HTML에게 `count` 값이 바뀌었다고 알려주기 위해 함수를 실행시켜주어야 했다.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+&nbsp;
 
-### `yarn build`
+## Redux 시작
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+yarn add redux
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+&nbsp;
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Redux 사용법
 
-### `yarn eject`
+**1. store 생성** : 상태 데이터를 넣어둘 저장소인 store를 생성한다.
+- store에서 사용할 수 있는 함수 4가지: `dispatch`, `getState`, `replaceReducer`, `subscribe`
+- `dispatch`: action을 store에 연결된 reducer 함수에게 전달해준다.
+- `subscribe`: store 안에 있는 변화들을 알게 해준다.
+- `getState`: store에 저장되어 있는 상태값을 가져온다.
+```javascript
+import { createStore } from "redux";
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+const countStore = createStore();
+```
+**2. reducer 작성** : 
+- 관리해줄 상태 데이터값을 변경해줄 reducer 함수를 작성한다.
+- reducer 함수에서 <U>return 하는 값은 곧 상태 데이터의 값</U>이 된다.
+```javascript
+// reducer
+const countModifier = () => {
+  return "hello"
+}
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+// store
+const countStore = createStore(countModifier);
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+console.log(countStore.getState()); // hello
+```
+**3. reducer 함수에게 액션 전달** :
+- store에서 dispatch하면 action을 store에 연결된 reducer 함수에게 전달해준다.
+```javascript
+// reducer
+const countModifier = (count = 0, action) => {
+  console.log(action); // { type: "HELLO" }
+  return count;
+}
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+// store
+const countStore = createStore(countModifier);
 
-## Learn More
+countStore.dispatch({ type: "HELLO "});
+```
+**4. 액션 함수**
+- dispatch로부터 action을 전달받으면 해당 액션에서 실행될 함수를 작성해준다.
+```javascript
+// reducer
+const countModifier = (count = 0, action) => {
+  if (action.type === 'ADD') {
+    return count + 1;
+  } else if (action.type === 'MINUS') {
+    return count - 1;
+  } else {
+    return count;
+  }
+}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+// store
+const countStore = createStore(countModifier);
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+countStore.dispatch({ type: "ADD "});
+```
