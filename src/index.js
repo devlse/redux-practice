@@ -1,66 +1,77 @@
-// **********************************************
-// counter
-// **********************************************
 import { createStore } from "redux";
-
-const add = document.getElementById("add");
-const minus = document.getElementById("minus");
-const number = document.querySelector("span");
-
-number.innerText = 0;
-const ADD = "ADD";
-const MINUS = "MINUS";
-
-// reducer
-const countModifier = (count = 0, action) => {
-  switch (action.type) {
-    case ADD:
-      return count + 1;
-    case MINUS:
-      return count - 1;
-    default:
-      return count;
-  }
-};
-
-// store
-const countStore = createStore(countModifier);
-
-// Action functions
-const onChange = () => {
-  number.innerText = countStore.getState();
-};
-
-const handleAdd = () => {
-  countStore.dispatch({ type: ADD });
-};
-const handleMinus = () => {
-  countStore.dispatch({ type: MINUS });
-};
-
-countStore.subscribe(onChange);
-add.addEventListener("click", handleAdd);
-minus.addEventListener("click", handleMinus);
-
-// **********************************************
-// To Dos
-// **********************************************
 
 const form = document.querySelector("form");
 const input = document.querySelector("input");
 const ul = document.querySelector("ul");
 
-const createTodo = (toDo) => {
-  const li = document.createElement("li");
-  li.innerText = toDo;
-  ul.appendChild(li);
+const ADD_TODO = "ADD_TODO";
+const DELETE_TOOD = "DELETE_TOOD";
+
+// 액션 생성 함수
+const addTodo = (text) => {
+  return {
+    type: ADD_TODO,
+    text,
+  };
+};
+
+const deleteTodo = (id) => {
+  return {
+    type: DELETE_TOOD,
+    id,
+  };
+};
+
+// reducer
+const reducer = (state = [], action) => {
+  switch (action.type) {
+    case ADD_TODO:
+      const newTodo = { text: action.text, id: Date.now() };
+      return [newTodo, ...state];
+    case DELETE_TOOD:
+      return state.filter((toDo) => toDo.id !== action.id);
+    default:
+      return state;
+  }
+};
+
+// store
+const store = createStore(reducer);
+store.subscribe(() => console.log(store.getState()));
+
+const dispatchAddTodo = (text) => {
+  store.dispatch(addTodo(text));
+  paintTodos();
+};
+
+const dispatchDeleteTodo = (e) => {
+  const id = parseInt(e.target.parentNode.id);
+  store.dispatch(deleteTodo(id));
+  paintTodos();
+};
+
+const paintTodos = () => {
+  const toDos = store.getState();
+  ul.innerHTML = "";
+
+  toDos.forEach((toDo) => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.innerText = "DEL";
+    btn.addEventListener("click", dispatchDeleteTodo);
+
+    li.id = toDo.id;
+    li.innerText = toDo.text;
+    ul.appendChild(li);
+    li.appendChild(btn);
+  });
 };
 
 const onSubmit = (e) => {
   e.preventDefault();
   const toDo = input.value;
   input.value = "";
-  createTodo(toDo);
+  dispatchAddTodo(toDo);
 };
 
 form.addEventListener("submit", onSubmit);

@@ -144,3 +144,54 @@ const MINUS = "MINUS";
 &nbsp;
 
 ## ✅ TODO LIST: Redux 적용
+
+`action` 을 보내줄 때 `store.dispatch()` 를 통해서 액션타입을 넘겨줄 수 있었다.
+
+그리고 `store` 에 연결되어있던 reducer는 넘겨받은 액션타입에 해당하는 함수를 실행시킨다.
+
+이 때, 다음과 같이 액션타입 이외에도 <U>변수</U>를 넘겨줄 수도 있다.
+
+```javascript
+// reducer
+const reducer = (state = [], action) => {
+  console.log(action.text); // toDo 값이 출력된다.
+};
+
+// store
+const store = createStore(reducer);
+
+const onSubmit = (e) => {
+  const toDo = input.value;
+  store.dispatch({ type: ADD_TODO, text: toDo });
+};
+```
+
+그리고 dispatch 할 때 타입명을 직접적으로 넘겨주기 보다 함수에 return 시켜서 함수로 전달해주기도 한다.
+
+```javascript
+const addTodo = (text) => {
+  // reducer에게 전달해줄 액션타입과 변수가 담긴 함수
+  return {
+    type: ADD_TODO,
+    text,
+  };
+};
+
+const dispatchAddTodo = (text) => {
+  store.dispatch(addTodo(text)); // 함수로 전달
+  paintTodos();
+};
+
+const onSubmit = (e) => {
+  e.preventDefault();
+  const toDo = input.value;
+  input.value = "";
+  dispatchAddTodo(toDo); // 액션 디스패치
+};
+```
+
+### ⚠️ Redux 사용 시 주의점
+
+- mutate state 하지 않을 것. 대신 new state objects를 리턴할 것.
+- 즉, 다이렉트로 state 값을 수정해서는 안된다.
+- 기존의 상태값을 복사해서 새로운 객체를 리턴해야 한다.
