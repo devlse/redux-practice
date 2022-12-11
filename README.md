@@ -195,3 +195,41 @@ const onSubmit = (e) => {
 - mutate state 하지 않을 것. 대신 new state objects를 리턴할 것.
 - 즉, 다이렉트로 state 값을 수정해서는 안된다.
 - 기존의 상태값을 복사해서 새로운 객체를 리턴해야 한다.
+
+&nbsp;
+
+# React Redux
+
+## React Redux 시작
+
+```bash
+yarn add react-redux react-router-dom
+```
+
+## React Router 적용
+
+React Router v6.4 부터는 다음과 같이 적용해야 한다.
+
+```javascript
+import React from "react";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Home from "../routes/Home";
+import Detail from "../routes/Detail";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/:id",
+    element: <Detail />,
+  },
+]);
+
+const App = () => {
+  return <RouterProvider router={router} />;
+};
+
+export default App;
+```
