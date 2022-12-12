@@ -89,7 +89,7 @@ const countStore = createStore(countModifier);
 countStore.dispatch({ type: "HELLO " });
 ```
 
-**4. 액션 함수**
+**4. Reducer**
 
 - dispatch로부터 action을 전달받으면 해당 액션에서 실행될 함수를 작성해준다.
 
@@ -111,7 +111,7 @@ const countStore = createStore(countModifier);
 countStore.dispatch({ type: "ADD " });
 ```
 
-**4-1. 액션함수 리팩토링**
+**4-1. Reducer 리팩토링**
 
 1. switch 문
 
