@@ -43,7 +43,7 @@ yarn add redux
 
 **1. store 생성** : 상태 데이터를 넣어둘 저장소인 store를 생성한다.
 
-- store에서 사용할 수 있는 함수 4가지: `dispatch`, `getState`, `replaceReducer`, `subscribe`
+- store에서 사용할 수 있는 함수 4가지: `dispatch`, `getState`, `replaceReducer`, `subscribe` (\*[store methods 공식문서](https://ko.redux.js.org/api/store))
 - `dispatch`: action을 store에 연결된 reducer 함수에게 전달해준다.
 - `subscribe`: store 안에 있는 변화들을 알게 해준다.
 - `getState`: store에 저장되어 있는 상태값을 가져온다.
@@ -143,7 +143,7 @@ const MINUS = "MINUS";
 
 &nbsp;
 
-## ✅ TODO LIST: Redux 적용
+## TODO LIST: Redux 적용
 
 `action` 을 보내줄 때 `store.dispatch()` 를 통해서 액션타입을 넘겨줄 수 있었다.
 
@@ -206,6 +206,8 @@ const onSubmit = (e) => {
 yarn add react-redux react-router-dom
 ```
 
+&nbsp;
+
 ## React Router 적용
 
 React Router v6.4 부터는 다음과 같이 적용해야 한다.
@@ -232,4 +234,141 @@ const App = () => {
 };
 
 export default App;
+```
+
+&nbsp;
+
+## Store 만들기
+
+```javascript
+import { createStore } from "redux";
+
+// 액션타입 선언
+const ADD = "ADD";
+const DELETE = "DELETE";
+
+// 액션 생성 함수
+export const addTodo = (text) => {
+  return {
+    type: ADD,
+    text,
+  };
+};
+
+export const deleteTodo = (id) => {
+  return {
+    type: DELETE,
+    id,
+  };
+};
+
+// reducer
+const reducer = (state = [], action) => {
+  switch (action.type) {
+    case ADD:
+      return [{ text: action.text, id: Date.now() }, ...state];
+    case DELETE:
+      return state.filter((toDo) => toDo.id !== action.id);
+    default:
+      return state;
+  }
+};
+
+// store
+const store = createStore(reducer);
+
+export default store;
+```
+
+상태값을 관리할 Store와 액션/함수들을 설정해주고나면 이를 React 에 적용시키기 위해서는 다음과 같은 과정이 필요하다.
+
+```javascript
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./components/App";
+import { Provider } from "react-redux";
+import store from "./store";
+
+const root = createRoot(document.getElementById("root"));
+root.render(
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
+```
+
+이렇게 `react-redux` 로부터 `Provider`를 불러와서 `store`를 주입시켜주고 store에서 관리하고 있는 상태값을 구독할 컴포넌트를 Provider로 감싸주면 된다.
+
+&nbsp;
+
+## Store 데이터 가져오기
+
+이제 이 store의 상태값을 컴포넌트에서 읽어 오려면 다음과 같이 가져올 수 있다.
+
+### 1. connect()
+
+📄 [공식문서](https://react-redux.js.org/api/connect)
+
+- `mapStateToProp()` 함수에서 첫번째 인자의 state는 store에서 읽어오고, 두번째 인자의 ownProps는 해당 컴포넌트에서 `props`로 넘겨 받은 값을 조회할 수 있다.
+- 그리고 `mapStateToProps()` 에서 return 한 값은 해당 컴포넌트와 연결되어 있으므로 컴포넌트의 `prop`에서 조회할 수 있다.
+- 공식문서에서 보면 state 값을 불러오는 <U>function의 이름은 `mapStateToProps` 여야 한다</U>고 한다.
+
+```javascript
+// Home.js
+import { connect } from "react-redux";
+
+const Home = ({ toDos }) => {
+ return {
+   <ul>{JSON.stringify(toDos)}</ul>
+ }
+};
+
+// mapStateToProps(state, ownProps)
+const mapStateToProps = (state) => {
+  return {
+    toDos: state,
+  };
+};
+
+export default connect(mapStateToProps)(Home);
+```
+
+&nbsp;
+
+### 2. Using Hooks - useSelector, useDispatch
+
+📄 [공식문서](https://react-redux.js.org/api/hooks)
+
+- **useSelector()**
+- `counter()`에서 state 값을 불러왔듯, 이 hook을 이용해서 동일하게 store 의 상태값을 읽어올 수 있다.
+
+```javascript
+import React from "react";
+import { useSelector } from "react-redux";
+
+export const CounterComponent = () => {
+  const counter = useSelector((state) => state.counter);
+  return <div>{counter}</div>;
+};
+```
+
+- **useDispatch()**
+- 앞에서 `store.dispatch()`로 reducer에게 action 타입을 넘겨주었듯이, 이 hook을 사용하여 동일하게 기능할 수 있다.
+
+```javascript
+import React from "react";
+import { useDispatch } from "react-redux";
+
+export const CounterComponent = ({ value }) => {
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <span>{value}</span>
+      <button onClick={() => dispatch({ type: "increment-counter" })}>
+        Increment counter
+      </button>
+    </div>
+  );
+};
 ```
