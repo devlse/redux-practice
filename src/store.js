@@ -5,17 +5,17 @@ const ADD = "ADD";
 const DELETE = "DELETE";
 
 // 액션 생성 함수
-export const addTodo = (text) => {
+const addTodo = (text) => {
   return {
     type: ADD,
     text,
   };
 };
 
-export const deleteTodo = (id) => {
+const deleteTodo = (id) => {
   return {
     type: DELETE,
-    id,
+    id: parseInt(id),
   };
 };
 
@@ -33,5 +33,10 @@ const reducer = (state = ["hello"], action) => {
 
 // store
 const store = createStore(reducer);
+
+export const actionCreators = {
+  addTodo,
+  deleteTodo,
+};
 
 export default store;

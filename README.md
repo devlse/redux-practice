@@ -133,7 +133,7 @@ const countModifier = (count = 0, action) => {
 
 2. 액션타입 string 변수 선언
 
-- 액션타입을 string 으로 작성해주고 있는데 일일이 문자를 작성해줄 경우 액션을 작성하는 과정에서 오타가 날 위험이 있기 대문에 string을 변수로 선언해준다.
+- 액션타입을 string 으로 작성해주고 있는데 일일이 문자를 작성해줄 경우 액션을 작성하는 과정에서 오타가 날 위험이 있기 때문에 string을 변수로 선언해준다.
 - 이렇게 변수로 작성해주면 오타가 나더라도 자바스크립트에서 해당 변수가 없다고 오류를 출력해줄 수 있다. 반면에 문자열로만 작성할 경우에는 오타가 나더라도 오류를 찾기 힘들다.
 
 ```javascript
@@ -305,7 +305,7 @@ root.render(
 
 이제 이 store의 상태값을 컴포넌트에서 읽어 오려면 다음과 같이 가져올 수 있다.
 
-### 1. connect()
+### 1. connect() - `mapStateToProps(state, ownProps)`
 
 📄 [공식문서](https://react-redux.js.org/api/connect)
 
@@ -335,12 +335,11 @@ export default connect(mapStateToProps)(Home);
 
 &nbsp;
 
-### 2. Using Hooks - useSelector, useDispatch
+### 2. Using Hooks - `useSelector()`
 
 📄 [공식문서](https://react-redux.js.org/api/hooks)
 
-- **useSelector()**
-- `counter()`에서 state 값을 불러왔듯, 이 hook을 이용해서 동일하게 store 의 상태값을 읽어올 수 있다.
+`connect()`에서 state 값을 불러왔듯, 이 hook을 이용해서 동일하게 store 의 상태값을 읽어올 수 있다.
 
 ```javascript
 import React from "react";
@@ -352,8 +351,51 @@ export const CounterComponent = () => {
 };
 ```
 
-- **useDispatch()**
-- 앞에서 `store.dispatch()`로 reducer에게 action 타입을 넘겨주었듯이, 이 hook을 사용하여 동일하게 기능할 수 있다.
+&nbsp;
+
+## Store 데이터 패치하기
+
+### 1. connect() - `mapDispatchToProps(state, ownProps)`
+
+데이터를 가져올 때와 비슷하게 connect() 함수에 데이터를 패치할 mapDispatchToProps 를 연결시켜준 뒤, 해당 함수에서 return 한 값을 props 로 조회할 수 있다.
+
+```javascript
+// Home.js
+import { connect } from "react-redux";
+
+const Home = ({ toDos, addTodo }) => {
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    addTodo(text);
+    setText('');
+  }
+
+ return {
+   <ul>{JSON.stringify(toDos)}</ul>
+ }
+};
+
+// mapStateToProps(state, ownProps)
+const mapStateToProps = (state) => {
+  return {
+    toDos: state,
+  };
+};
+
+// mapDispatchToProps()
+const mapDispatchToProps(dispatch) {
+  return {addTodo: (text) => dispatch(actionCreators.addTodo(text))};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+```
+
+&nbsp;
+
+### 2. using Hooks - `useDispatch()`
+
+앞에서 `store.dispatch()`로 reducer에게 action 타입을 넘겨주었듯이, 이 hook을 사용하여 동일하게 기능할 수 있다.
 
 ```javascript
 import React from "react";
