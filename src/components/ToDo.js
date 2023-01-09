@@ -1,11 +1,13 @@
 import React from "react";
 import { connect } from "react-redux";
-import { actionCreators } from "../store";
+import { Link } from "react-router-dom";
+import { remove } from "../store";
 
-const ToDo = ({ text, onBtnClick }) => {
+const ToDo = ({ text, onBtnClick, id }) => {
   return (
     <li>
-      {JSON.stringify(text)} <button onClick={onBtnClick}>삭제</button>
+      <Link to={`/${id}`}>{text}</Link>
+      <button onClick={onBtnClick}>삭제</button>
     </li>
   );
 };
@@ -13,7 +15,7 @@ const ToDo = ({ text, onBtnClick }) => {
 // mapDispatchToProps()
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    onBtnClick: () => dispatch(actionCreators.deleteTodo(ownProps.id)),
+    onBtnClick: () => dispatch(remove(ownProps.id)),
   };
 };
 

@@ -1,42 +1,18 @@
-import { createStore } from "redux";
+import { configureStore, createSlice } from "@reduxjs/toolkit";
 
-// 액션타입 선언
-const ADD = "ADD";
-const DELETE = "DELETE";
+const toDos = createSlice({
+  name: "toDosReducer",
+  initialState: [],
+  reducers: {
+    add: (state, action) => {
+      state.push({ text: action.payload, id: Date.now() });
+    },
+    remove: (state, action) => {
+      state.filter((toDo) => toDo.id !== action.payload);
+    },
+  },
+});
 
-// 액션 생성 함수
-const addTodo = (text) => {
-  return {
-    type: ADD,
-    text,
-  };
-};
+export const { add, remove } = toDos.actions;
 
-const deleteTodo = (id) => {
-  return {
-    type: DELETE,
-    id: parseInt(id),
-  };
-};
-
-// reducer
-const reducer = (state = ["hello"], action) => {
-  switch (action.type) {
-    case ADD:
-      return [{ text: action.text, id: Date.now() }, ...state];
-    case DELETE:
-      return state.filter((toDo) => toDo.id !== action.id);
-    default:
-      return state;
-  }
-};
-
-// store
-const store = createStore(reducer);
-
-export const actionCreators = {
-  addTodo,
-  deleteTodo,
-};
-
-export default store;
+export default configureStore({ reducer: toDos.reducer });

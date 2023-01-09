@@ -1,4 +1,12 @@
-# Vanilla Redux
+# 실행하기
+
+```bash
+yarn start
+```
+
+&nbsp;
+
+# 1. Vanilla Redux
 
 ## Redux 를 사용하는 이유
 
@@ -198,7 +206,7 @@ const onSubmit = (e) => {
 
 &nbsp;
 
-# React Redux
+# 2. React Redux
 
 ## React Redux 시작
 
@@ -414,3 +422,191 @@ export const CounterComponent = ({ value }) => {
   );
 };
 ```
+
+&nbsp;
+
+# 3. Redux-Toolkit
+
+리덕스를 사용하는 것의 단점은 액션 생성함수, switch, case, default 등 많은 양의 코드를 작성해야하고, 반복해서 사용해야 하는 boilerplate code(상용구 코드)를 써야 한다는 점이다.
+
+그래서 생겨난 것이 `redux-toolkit` 이다. `redux-toolkit` 을 이용해서 redux 코드를 조금 더 짧고 간단하게 작성하면서 동일하게 작동하도록 구현할 수 있다.
+
+&nbsp;
+
+## 1) createAction()
+
+기존 코드 - 액션 생성
+
+```javascript
+// 액션타입 선언
+const ADD = "ADD";
+const DELETE = "DELETE";
+
+// 액션 생성 함수
+const addTodo = (text) => {
+  return {
+    type: ADD,
+    text,
+  };
+};
+```
+
+toolkit - 액션 생성
+
+```javascript
+const addTodo = createAction("ADD");
+```
+
+<hr/>
+
+기존 코드 - reducer 작성
+
+```javascript
+// reducer
+const reducer = (state = ["hello"], action) => {
+  switch (action.type) {
+    case ADD:
+      return [{ text: action.text, id: Date.now() }, ...state];
+    case DELETE:
+      return state.filter((toDo) => toDo.id !== action.id);
+    default:
+      return state;
+  }
+};
+```
+
+toolkit - reducer 작성
+
+```javascript
+// reducer
+const reducer = (state = ["hello"], action) => {
+  switch (action.type) {
+    case addTodo.type:
+      return [{ text: action.payload, id: Date.now() }, ...state];
+    case deleteTodo.type:
+      return state.filter((toDo) => toDo.id !== action.id);
+    default:
+      return state;
+  }
+};
+```
+
+이 때 `action.text`로 되어 있는 것을 `action.payload`를 받아오도록 해야 한다.
+리덕스툴킷에서는 액션에게 보내고 싶은 정보가 무엇이든지 `payload` 와 함께 보내진다.
+
+&nbsp;
+
+## 2) createReducer()
+
+기존 코드 - reducer
+
+```javascript
+// reducer
+const reducer = (state = [], action) => {
+  switch (action.type) {
+    case addTodo.type:
+      return [{ text: action.payload, id: Date.now() }, ...state];
+    case deleteTodo.type:
+      return state.filter((toDo) => toDo.id !== action.payload);
+    default:
+      return state;
+  }
+};
+```
+
+toolkit - reducer
+
+```javascript
+const reducer = createReducer(0, {
+  [addTodo]: (state, action) => {
+    state.push({ text: action.payload, id: Date.now() });
+  },
+  [deleteTodo]: (state, action) => {
+    state.filter((toDo) => toDo.id !== action.payload);
+  },
+});
+```
+
+switch, care, default 등의 코드를 따로 작성해주지 않아도 케이스를 작성해줄 수 있다.
+
+또한 createReducer()로 작업할 때 두 가지 선택지가 있다.
+
+1. 새로운 state를 리턴할 수 있다.
+2. state를 mutate 할 수 있다.
+
+원래 기존의 redux 에서는 state 를 mutate 할 수 없게 되어있다. 리덕스툴킷에서 이것이 가능한 이유는 `immer` 라는 것이 불변성을 유지하도록 대신 해주기 떄문이다.
+
+&nbsp;
+
+## 3) configureStore()
+
+기존 코드 - store
+
+```javascript
+const store = createStore(reducer);
+```
+
+toolkit - store
+
+```javascript
+const store = configureStore({ reducer });
+```
+
+&nbsp;
+
+## 4) createSlice()
+
+기존 코드 - 액션 선언, 리듀서함수 작성
+
+```javascript
+// createAction 으로 생성
+const addTodo = createAction("ADD");
+const deleteTodo = createAction("DELETE");
+
+// reducer
+const reducer = createReducer(0, {
+  [addTodo]: (state, action) => {
+    state.push({ text: action.payload, id: Date.now() });
+  },
+  [deleteTodo]: (state, action) => {
+    state.filter((toDo) => toDo.id !== action.payload);
+  },
+});
+
+// store
+const store = createStore(reducer);
+
+export const actionCreators = {
+  addTodo,
+  deleteTodo,
+};
+
+export default store;
+```
+
+toolkit - createSlice
+
+```javascript
+const toDos = createSlice({
+  name: "toDosReducer",
+  initialState: [],
+  reducers: {
+    add: (state, action) => {
+      state.push({ text: action.payload, id: Date.now() });
+    },
+    remove: (state, action) => {
+      state.filter((toDo) => toDo.id !== action.payload);
+    },
+  },
+});
+
+// store
+const store = configureStore({ reducer: toDos.reducer });
+
+export const { add, remove } = toDos.actions;
+
+export default store;
+```
+
+`createSlice()` 를 통해서 슬라이스 내부에 액션 선언, 초기값, 리듀서 함수를 모두 합쳐서 한곳에서 작성해줄 수 있다.
+그리고 슬라이스에서 리듀서와 액션 모두 조회할 수 있다. `슬라이스이름.actions/reducer`
